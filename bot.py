@@ -187,24 +187,24 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⚠️ An error occurred. Please /cancel and try again.")
 
 
+import os
+
 def main():
     app = Application.builder().token(TOKEN).build()
 
     conv = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
-            NAME: [ MessageHandler(filters.TEXT & ~filters.COMMAND, get_name) ],
-            MATERIAL_TYPE: [ MessageHandler(filters.TEXT & ~filters.COMMAND, get_material_type) ],
-            SUBJECT: [ MessageHandler(filters.TEXT & ~filters.COMMAND, get_subject) ],
-            SEMESTER: [ MessageHandler(filters.TEXT & ~filters.COMMAND, get_semester) ],
+            NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
+            MATERIAL_TYPE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_material_type)],
+            SUBJECT: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_subject)],
+            SEMESTER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_semester)],
             FILE: [
-                # 1) valid docs → get_file
                 MessageHandler(filters.Document.ALL & ~filters.COMMAND, get_file),
-                # 2) everything else → invalid_file
                 MessageHandler(~filters.Document.ALL & ~filters.COMMAND, invalid_file),
             ],
         },
-        fallbacks=[ CommandHandler("cancel", cancel) ],
+        fallbacks=[CommandHandler("cancel", cancel)],
         per_user=True,
         per_chat=True,
     )
@@ -212,9 +212,23 @@ def main():
     app.add_handler(conv)
     app.add_error_handler(error_handler)
 
-    print("Bot is up and running…")
-    app.run_polling()
+    # Detect if running locally or on Railway
+    if os.getenv("RAILWAY_ENVIRONMENT") == "production":
+        # Production → use webhook
+        PORT = int(os.environ.get('PORT', 8443))
+        WEBHOOK_URL = f"https://{os.environ['RAILWAY_STATIC_URL']}/webhook"
 
+        print(f"Starting webhook at {WEBHOOK_URL}")
+
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            webhook_url=WEBHOOK_URL
+        )
+    else:
+        # Local testing → use polling
+        print("Running locally with polling...")
+        app.run_polling()
 
 if __name__ == "__main__":
     main()
