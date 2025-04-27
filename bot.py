@@ -17,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # --- Bot config ------------------------------------------------
-TOKEN = "8072365620:AAHEz19_PKSbh01o6WDTt-SJsm9hUgviu_4"
+TOKEN = "8072365620:AAHnRlzDCIydHDv6GnCPJFyFtdk39M23_Xc"
 YOUR_CHAT_ID = 987632568  # integer, not string
 
 # --- Conversation states --------------------------------------
@@ -72,14 +72,14 @@ async def get_subject(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def get_semester(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handles semester selection and asks for file."""
     semester = update.message.text
-    
+
     # Validate the semester selection
     if semester not in SEMESTER_OPTIONS:
         await update.message.reply_text(
             "❌ Please select a valid semester from the buttons."
         )
         return SEMESTER
-    
+
     context.user_data['semester'] = semester
 
     # Remove the keyboard once the semester is selected
