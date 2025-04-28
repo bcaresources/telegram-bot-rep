@@ -85,15 +85,16 @@ async def get_semester(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Remove the keyboard once the semester is selected
     try:
-    await update.message.reply_text(
-        "📤 Now please upload the file (PDF or PPTX only).",
-        reply_markup=ReplyKeyboardRemove()
-    )
-    return FILE
-except Exception as e:
-    logger.error(f"Error while asking for file upload: {e}")
-    await update.message.reply_text("⚠️ Bot had an issue. Please /start again.")
-    return ConversationHandler.END
+        await update.message.reply_text(
+            "📤 Now please upload the file (PDF or PPTX only).",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return FILE
+    except Exception as e:
+        logger.error(f"Error while asking for file upload: {e}")
+        await update.message.reply_text("⚠️ Bot had an issue. Please /start again.")
+        return ConversationHandler.END
+
 
 
 
