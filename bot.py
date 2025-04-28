@@ -31,10 +31,14 @@ ALLOWED_EXTENSIONS = ['.pdf', '.pptx']
 
 # --- Handlers -------------------------------------------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data.clear()  # <-- clear old data
-    await update.message.reply_text("👋 Hi! What's your name?")
-    reply_markup=ReplyKeyboardRemove()  # <-- add this line
+    context.user_data.clear()
+
+    await update.message.reply_text(
+        "👋 Hi! What's your name?",
+        reply_markup=ReplyKeyboardRemove()  # Clean any old keyboards
+    )
     return NAME
+
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = update.message.text.strip()
