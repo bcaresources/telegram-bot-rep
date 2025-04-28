@@ -31,7 +31,8 @@ ALLOWED_EXTENSIONS = ['.pdf', '.pptx']
 
 # --- Handlers -------------------------------------------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data.clear()  # Clear any existing conversation data
+    # Clear all data and force a fresh start
+    context.user_data.clear()
     await update.message.reply_text("👋 Hi! What's your name?")
     return NAME
 
@@ -49,13 +50,19 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def get_material_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
     choice = update.message.text
     if choice not in MATERIAL_TYPES:
-        await update.message.reply_text("❗ Please choose using the buttons below.")
-        return MATERIAL_TYPE
+        # Re-send buttons if input is invalid
+        kb = [MATERIAL_TYPES[i:i+2] for i in range(0, len(MATERIAL_TYPES), 2)]
+        await update.message.reply_text(
+            "❗ Please choose a valid material type using the buttons below:",
+            reply_markup=ReplyKeyboardMarkup(kb, one_time_keyboard=True, resize_keyboard=True)
+        )
+        return MATERIAL_TYPE  # Stay in the same state
 
+    # Valid choice → proceed
     context.user_data['material_type'] = choice
     await update.message.reply_text(
         "📚 Okay, and this is for which subject exactly?",
-        reply_markup=ReplyKeyboardRemove()
+        reply_markup=ReplyKeyboardRemove()  # Remove keyboard for free-text input
     )
     return SUBJECT
 
