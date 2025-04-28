@@ -35,7 +35,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👋 Hi! What's your name?")
     return NAME
 
-
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
     name = update.message.text.strip()
     context.user_data['name'] = name
@@ -192,26 +191,27 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     app = Application.builder().token(TOKEN).build()
 
-   conv = ConversationHandler(
-    entry_points=[CommandHandler("start", start)],
-    states={
-        NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
-        MATERIAL_TYPE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_material_type)],
-        SUBJECT: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_subject)],
-        SEMESTER: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_semester)],
-        FILE: [
-            MessageHandler(filters.Document.ALL & ~filters.COMMAND, get_file),
-            MessageHandler(~filters.Document.ALL & ~filters.COMMAND, invalid_file),
-        ],
-    },
-    fallbacks=[
+    conv = ConversationHandler(
+        entry_points=[CommandHandler("start", start)],
+        states={
+            NAME: [ MessageHandler(filters.TEXT & ~filters.COMMAND, get_name) ],
+            MATERIAL_TYPE: [ MessageHandler(filters.TEXT & ~filters.COMMAND, get_material_type) ],
+            SUBJECT: [ MessageHandler(filters.TEXT & ~filters.COMMAND, get_subject) ],
+            SEMESTER: [ MessageHandler(filters.TEXT & ~filters.COMMAND, get_semester) ],
+            FILE: [
+                # 1) valid docs → get_file
+                MessageHandler(filters.Document.ALL & ~filters.COMMAND, get_file),
+                # 2) everything else → invalid_file
+                MessageHandler(~filters.Document.ALL & ~filters.COMMAND, invalid_file),
+            ],
+        },
+        fallbacks=[
         CommandHandler("cancel", cancel),
         CommandHandler("start", start),  # <-- add this!
     ],
-    per_user=True,
-    per_chat=True,
-)
-
+        per_user=True,
+        per_chat=True,
+    )
 
     app.add_handler(conv)
     app.add_error_handler(error_handler)
