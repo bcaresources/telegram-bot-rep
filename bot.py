@@ -84,11 +84,18 @@ async def get_semester(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['semester'] = semester
 
     # Remove the keyboard once the semester is selected
+    try:
     await update.message.reply_text(
         "📤 Now please upload the file (PDF or PPTX only).",
         reply_markup=ReplyKeyboardRemove()
     )
     return FILE
+except Exception as e:
+    logger.error(f"Error while asking for file upload: {e}")
+    await update.message.reply_text("⚠️ Bot had an issue. Please /start again.")
+    return ConversationHandler.END
+
+
 
 
 async def get_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -182,14 +189,16 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     return ConversationHandler.END
 
-async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logger.error(f"Update {update} caused error {context.error}")
-    if update.message:
-        await update.message.reply_text("⚠️ An error occurred. Please /cancel and try again.")
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
+    logger.error(msg="Exception while handling update:", exc_info=context.error)
+    if isinstance(update, Update) and update.message:
+        await update.message.reply_text("⚠️ Bot faced an error. Please /start again or /cancel.")
+
 
 
 def main():
-    app = Application.builder().token(TOKEN).build()
+    app = Application.builder().token(TOKEN).connect_timeout(10).read_timeout(30).build()
+
 
     conv = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -217,7 +226,8 @@ def main():
     app.add_error_handler(error_handler)
 
     print("Bot is up and running…")
-    app.run_polling()
+    app.run_polling(drop_pending_updates=True)
+
 
 
 if __name__ == "__main__":
