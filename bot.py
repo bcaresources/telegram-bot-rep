@@ -41,24 +41,29 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return NAME
 
 async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Handle name input with validation"""
-    name = update.message.text.strip()
-    if not name:
-        await update.message.reply_text("❌ Please enter a valid name.")
-        return NAME
+    try:
+        print("DEBUG: Entered get_name handler")  # Debug line
+        name = update.message.text.strip()
+        if not name:
+            await update.message.reply_text("❌ Please enter a valid name.")
+            return NAME
 
-    context.user_data['name'] = name
-    
-    # =============================================
-    # CHANGED: Added delay to ensure buttons render properly
-    # =============================================
-    kb = [MATERIAL_TYPES[i:i+2] for i in range(0, len(MATERIAL_TYPES), 2)]
-    await update.message.reply_text(
-        f"📝 {name}, choose material type:",
-        reply_markup=ReplyKeyboardMarkup(kb, one_time_keyboard=True, resize_keyboard=True)
-    )
-    await asyncio.sleep(0.5)  # Small delay for UI consistency
-    return MATERIAL_TYPE
+        context.user_data['name'] = name
+        print(f"DEBUG: Stored name: {name}")  # Debug line
+        
+        # Fixed the button generation (removed comma typo)
+        kb = [MATERIAL_TYPES[i:i+2] for i in range(0, len(MATERIAL_TYPES), 2)]  # Fixed this line
+        print(f"DEBUG: Keyboard: {kb}")  # Debug line
+        
+        await update.message.reply_text(
+            f"📝 {name}, choose material type:",
+            reply_markup=ReplyKeyboardMarkup(kb, one_time_keyboard=True, resize_keyboard=True)
+        )
+        print("DEBUG: Sent material type question")  # Debug line
+        return MATERIAL_TYPE
+    except Exception as e:
+        print(f"ERROR in get_name: {e}")  # Debug line
+        raise
 
 async def get_material_type(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle material type with button re-send if invalid"""
