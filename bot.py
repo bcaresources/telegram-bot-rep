@@ -31,6 +31,7 @@ ALLOWED_EXTENSIONS = ['.pdf', '.pptx']
 
 # --- Handlers -------------------------------------------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.clear()  # Clear any existing conversation data
     await update.message.reply_text("👋 Hi! What's your name?")
     return NAME
 
@@ -94,7 +95,7 @@ async def get_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle uploads: only PDF for Notes/Exam/Other, only PPTX for Presentations."""
     doc = update.message.document
 
-    # 1) If it’s not a document at all:
+    # 1) If it's not a document at all:
     if not doc:
         await update.message.reply_text(
             "❌ Unsupported file format!\n"
@@ -119,7 +120,7 @@ async def get_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(err_msg)
         return FILE
 
-    # 3) If we get here, it’s a valid file—process it
+    # 3) If we get here, it's a valid file—process it
     try:
         # Confirmation #1
         await update.message.reply_text(
@@ -164,7 +165,6 @@ async def get_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
     finally:
         context.user_data.clear()
         return ConversationHandler.END
-
 
 
 async def invalid_file(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -212,7 +212,7 @@ def main():
     app.add_handler(conv)
     app.add_error_handler(error_handler)
 
-    print("Bot is up and running…")
+    print("Bot is up and running...")
     app.run_polling()
 
 
