@@ -7,6 +7,7 @@ from telegram.ext import (
     ConversationHandler,
     filters
 )
+import os
 import logging
 
 # --- Logging --------------------------------------------------
@@ -17,7 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # --- Bot config ------------------------------------------------
-TOKEN = "8072365620:AAHnRlzDCIydHDv6GnCPJFyFtdk39M23_Xc"
+TOKEN = os.getenv("BOT_TOKEN")
 YOUR_CHAT_ID = 987632568  # integer, not string
 
 # --- Conversation states --------------------------------------
